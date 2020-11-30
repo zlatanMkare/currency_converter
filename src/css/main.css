@@ -1,0 +1,17 @@
+html {
+     background: #eeeeee;
+}
+
+.dropdown-menu {
+     max-height: 300px !important;
+     overflow: auto !important;
+}
+.v-select {
+     background: #ffffff;
+}
+.v-select .vs__dropdown-toggle {
+     border: none;
+}
+.form-control {
+     border-radius: 0;
+}
