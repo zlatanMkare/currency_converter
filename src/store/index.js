@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import config from './config'
+import createCache from 'vuex-cache';
 
 Vue.use(Vuex)
-
 
 const store = new Vuex.Store({
      state: {
@@ -184,7 +184,9 @@ const store = new Vuex.Store({
                     })
                })
           }
-     }
+     },
+
+     plugins: [createCache()]
 })
 
 export default store;

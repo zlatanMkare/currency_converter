@@ -140,10 +140,10 @@
           },
 
           created () {
-               this.$store.dispatch('fetchRates').then(() => {
+               this.$store.cache.dispatch('fetchRates').then(() => {
                     this.getRate()
-                    this.$store.dispatch('fetchExchangeInfo')
-                    this.$store.dispatch('fetchCryptoPrice')
+                    this.$store.cache.dispatch('fetchExchangeInfo')
+                    this.$store.cache.dispatch('fetchCryptoPrice')
                })
           },
 
