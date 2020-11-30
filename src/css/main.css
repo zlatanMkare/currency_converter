@@ -14,4 +14,5 @@ html {
 }
 .form-control {
      border-radius: 0;
+     border: none;
 }

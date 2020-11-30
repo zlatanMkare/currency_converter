@@ -10,7 +10,6 @@
                          <b-form-group label="Convert" label-for="convert">
                               <b-form-input 
                                    v-model="originalCurrency" 
-                                   v-on:keyup="convert()"
                                    id="convert" 
                                    type="text">
                               </b-form-input>
@@ -61,14 +60,16 @@
                return {
                     originalCurrencySymbol: this.$store.state.base,
                     convertToCurrencySymbol: 'DKK',
-                    originalCurrency: '',
+                    originalCurrency: 1,
                     convertToCurrency: '',
                     rate: '',
                     originalCryptoToBtc: '',
                     youGetCryptoToBtc: '',
 
                     base_btc: '',
-                    btc_to_dollar: ''
+                    btc_to_dollar: '',
+
+                    tether_rate: ''
                }
           },
 
@@ -93,6 +94,14 @@
           },
 
           watch: {
+               originalCurrency: function() {
+                    if (!this.currencies.includes(this.convertToCurrencySymbol)) {
+                         this.convertReverse()
+                    } else {
+                         this.convert()
+                    }
+               },
+
                originalCurrencySymbol: function() {
                     this.commitBase()
                     // is a fiat
@@ -104,14 +113,15 @@
                     } else if (this.cryptoToCrypto) {
                          this.convertCrypto()
                     } else {
-                         this.$store.dispatch('fetchCryptoRate').then(() => {
-                              this.getRate()
+                         const symbol = this.originalCurrencySymbol + 'USDT'
+                         if (this.cryptoPrices.find(element => element.symbol === symbol)) {
                               this.convert()
-                         }).catch(() => {
+                         } else {
                               this.$store.dispatch('fetchSecondCryptoRate', this.originalCurrencySymbol).then(() => {
                                    this.convertFiatCrypto_baseBtc()
                               })
-                         })
+                         }
+
                     }
                     
                },
@@ -126,14 +136,15 @@
                     } else if (this.cryptoToCrypto) {
                          this.convertCrypto()
                     } else {
-                         this.$store.dispatch('fetchCryptoRate', this.convertToCurrencySymbol).then(() => {
-                              this.getRate()
-                              this.convert()
-                         }).catch(() => {
-                              this.$store.dispatch('fetchSecondCryptoRate', this.originalCurrencySymbol).then(() => {
+                         const symbol = this.convertToCurrencySymbol + 'USDT'
+                         if (this.cryptoPrices.find(element => element.symbol === symbol)) {
+                              this.convertReverse()
+                         } else {
+                              this.$store.dispatch('fetchSecondCryptoRate', this.convertToCurrencySymbol).then(() => {
                                    this.convertFiatCrypto_baseBtc()
                               })
-                         })
+                         }
+
                     }
                     
                }
@@ -142,6 +153,7 @@
           created () {
                this.$store.cache.dispatch('fetchRates').then(() => {
                     this.getRate()
+                    this.convert()
                     this.$store.cache.dispatch('fetchExchangeInfo')
                     this.$store.cache.dispatch('fetchCryptoPrice')
                })
@@ -155,15 +167,43 @@
                          this.convertToCurrency = this.originalCurrency * (this.originalCryptoToBtc.price / this.youGetCryptoToBtc.price)
                     } else {
                          console.log('converting crypto to fiat - convert function')
-                         const tether_rate = this.$store.state.rate_base_usdt
-                         let dollar_rate = ''
-                         if (Object.keys(this.$store.state.dollar_to_currency_rate).length) {
-                              dollar_rate = Object.values(this.$store.state.dollar_to_currency_rate)
+
+                         const symbol = this.originalCurrencySymbol + 'USDT'
+                         if (this.cryptoPrices.find(element => element.symbol === symbol)) {
+                              this.tether_rate = this.cryptoPrices.find(element => element.symbol === symbol)
+
+                              let dollar_rate = ''
+                              if (Object.keys(this.$store.state.dollar_to_currency_rate).length) {
+                                   dollar_rate = Object.values(this.$store.state.dollar_to_currency_rate)
+                              } else {
+                                   dollar_rate = this.$store.state.dollar_to_currency_rate
+                              }
+
+                              const cryptoRate = this.tether_rate.price * dollar_rate
+                              this.convertToCurrency = ((this.originalCurrency * cryptoRate)).toLocaleString('da-DK')
                          } else {
-                              dollar_rate = this.$store.state.dollar_to_currency_rate
+                              this.convertFiatCrypto_baseBtc()
                          }
-                         const cryptoRate = tether_rate * dollar_rate
-                         this.convertToCurrency = ((this.originalCurrency * cryptoRate)).toLocaleString('da-DK')
+
+                    }
+               },
+
+               convertReverse() {
+                    if (this.currencies.includes(this.convertToCurrencySymbol)) {
+                         this.convertToCurrency = ((this.originalCurrency * this.rate)).toLocaleString('da-DK')
+                    } else if (this.cryptoToCrypto) {
+                         this.convertToCurrency = this.originalCurrency * (this.originalCryptoToBtc.price / this.youGetCryptoToBtc.price)
+                    } else {
+                         console.log('converting crypto to fiat - convert reverse')
+
+                         const symbol = this.convertToCurrencySymbol + 'USDT'
+                         if (this.cryptoPrices.find(element => element.symbol === symbol)) {
+                              this.tether_rate = this.cryptoPrices.find(element => element.symbol === symbol)
+                              this.convertToCurrency = this.originalCurrency / this.tether_rate.price
+                         } else {
+                              this.convertFiatCrypto_baseBtc()
+                         }
+
                     }
                },
 
@@ -183,8 +223,17 @@
                     const symbol_two = this.convertToCurrencySymbol + 'BTC'
                     
                     // get both cryptos -> base btc
-                    this.originalCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_one);
-                    this.youGetCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_two);
+                    if (this.originalCurrencySymbol == 'BTC') {
+                         this.originalCryptoToBtc = {price:"1", symbol:"BTC"}
+                    } else {
+                         this.originalCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_one);
+                    }
+                    
+                    if (this.convertToCurrencySymbol == 'BTC') {
+                         this.youGetCryptoToBtc = {price:"1", symbol:"BTC"}
+                    } else {
+                         this.youGetCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_two);
+                    }
 
                     this.convertToCurrency = this.originalCryptoToBtc.price / this.youGetCryptoToBtc.price
                     console.log('this is a crypto to crypto exchange')
@@ -210,7 +259,7 @@
                     const crypto_to_btc = this.$store.state.rate_base_btc
 
                     // convert to currency
-                    const crypto_to_currency = crypto_to_btc / fiat_to_btc
+                    const crypto_to_currency = this.originalCurrency * (crypto_to_btc / fiat_to_btc)
                     this.convertToCurrency = crypto_to_currency
                },
 
