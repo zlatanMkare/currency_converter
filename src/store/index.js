@@ -13,10 +13,8 @@ const store = new Vuex.Store({
           date: '',
           crypto: [],
           crypto_prices: [],
-          rate_base_usdt: null,
           rate_base_btc: null,
-          dollar_to_currency_rate: 6.24,
-          symbol_not_found: ''
+          dollar_to_currency_rate: ''
      },
 
      getters: {
@@ -75,27 +73,19 @@ const store = new Vuex.Store({
                state.crypto_prices = data
           },
 
-          SET_RATE_BASE_USDT(state,data) {
-               state.rate_base_usdt = data
-          },
-
           SET_RATE_BASE_BTC(state,data) {
                state.rate_base_btc = data
           },
 
           SET_DOLLAR_RATE(state,data) {
                state.dollar_to_currency_rate = data
-          },
-
-          SET_SYMBOL_NOT_FOUND(state,data) {
-               state.symbol_not_found = data
           }
      },
 
      actions: {
           fetchRates({commit,state}) {
                return new Promise((resolve,reject) => {
-                    axios.get(config.currencyApi + '?base=' + state.base).then(response => {
+                    axios.get(config.fiatApi + '?base=' + state.base).then(response => {
                          const rates = response.data.rates
                          const date = response.data.date
                          commit('SET_RATES',rates)
@@ -108,14 +98,13 @@ const store = new Vuex.Store({
                })
           },
 
-          fetchNewRates({commit, state, dispatch}) {
+          fetchNewRates({commit, state}) {
                return new Promise((resolve,reject) => {
-                    axios.get(config.currencyApi + '?base=' + state.base).then(response => {
+                    axios.get(config.fiatApi + '?base=' + state.base).then(response => {
                          const rates = response.data.rates
                          commit('SET_RATES',rates)
                          resolve()
                     }).catch(e => {
-                         dispatch('fetchCryptoRate')
                          console.log(e)
                          reject()
                     })
@@ -124,27 +113,13 @@ const store = new Vuex.Store({
 
           fetchSpecificRate({commit}, payload) {
                return new Promise((resolve,reject) => {
-                    axios.get(config.currencyApi + '?symbols=' + payload + '&base=USD').then(response => {
+                    axios.get(config.fiatApi + '?symbols=' + payload + '&base=USD').then(response => {
                          const rates = response.data.rates
                          commit('SET_DOLLAR_RATE',rates)
                          resolve()
                     }).catch(e => {
                          console.log(e)
                          reject()
-                    })
-               })
-          },
-
-          fetchCryptoRate({commit, state}) {
-               return new Promise((resolve,reject) => {
-                    const symbols = state.base + 'USDT';
-                    axios.get(config.cryptoRatesApi + '?symbol=' + symbols).then(response => {
-                         const rate = response.data.price
-                         commit('SET_RATE_BASE_USDT',rate)
-                         resolve()
-                    }).catch(e => {
-                         commit('SET_SYMBOL_NOT_FOUND', true)
-                         reject(e)
                     })
                })
           },
