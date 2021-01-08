@@ -8,6 +8,9 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
      state: {
+          currencyOne: '',
+          currencyTwo: '',
+          originalCurrency: '',
           rates: [],
           base: 'USD',
           date: '',
@@ -53,6 +56,15 @@ const store = new Vuex.Store({
      },
 
      mutations: {
+          SET_CURRENCY_ONE(state,data) {
+               state.currencyOne = data
+          },
+          SET_CURRENCY_TWO(state,data) {
+               state.currencyTwo = data
+          },
+          SET_ORIGINAL_CURRENCY(state,data) {
+               state.originalCurrency = data
+          },
           SET_RATES(state,data) {
                state.rates = data
           },
