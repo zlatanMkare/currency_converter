@@ -8,14 +8,14 @@
                <b-row id="converter" v-else>
                     <currency-one></currency-one>
                     
-                    <divider></divider>
+                    <div class="row col-md-2">
+                         <b-col>
+                              <b-icon icon="arrow-counterclockwise" :animation="animation" font-scale="3"></b-icon>
+                         </b-col>
+                    </div>
+                    <!-- <divider></divider> -->
 
                     <currency-two :converted-currency="this.convertedCurrency"></currency-two>
-               </b-row>
-          </b-container>
-          <b-container>
-               <b-row>
-                    <foot-note></foot-note>
                </b-row>
           </b-container>
      </div>
@@ -25,24 +25,21 @@
      import {mapGetters} from 'vuex'
      import CurrencyOne from './CurrencyOne.vue'
      import CurrencyTwo from './CurrencyTwo.vue'
-     import Divider from './Divider.vue'
-     import FootNote from './FootNote.vue'
 
      export default {
           components: {
                CurrencyOne,
-               CurrencyTwo,
-               Divider,
-               FootNote
+               CurrencyTwo
           },
 
           data () {
                return {
                     convertedCurrency: '',
                     rate: '',
-                    originalCryptoToBtc: '',
-                    secondCryptoToBtc: '',
-                    tetherRate: ''
+                    originalCryptoToBTC: '',
+                    secondCryptoToBTC: '',
+                    tetherRate: '',
+                    animation: 'none'
                }
           },
 
@@ -76,7 +73,7 @@
 
           watch: {
                originalCurrency: function() {
-                    if (!this.isAFiat(this.currencyTwo)) {
+                    if (!this.isAFiatCurrency(this.currencyTwo)) {
                          this.convertSecondSelect()
                     } else {
                          this.convert()
@@ -85,7 +82,7 @@
 
                currencyOne: function() {
                     this.commitBase()
-                    if (this.isAFiat(this.currencyOne)) {
+                    if (this.isAFiatCurrency(this.currencyOne)) {
                          this.$store.dispatch('fetchNewRates').then(() => {
                               this.$store.dispatch('fetchSpecificRate', this.currencyOne).then(() => {
                                    this.getRate()
@@ -108,7 +105,7 @@
                },
 
                currencyTwo: function() {
-                    if (this.isAFiat(this.currencyTwo)) {
+                    if (this.isAFiatCurrency(this.currencyTwo)) {
                          this.$store.dispatch('fetchSpecificRate', this.currencyTwo).then(() => {
                               this.getRate()
                               this.convert()
@@ -124,9 +121,7 @@
                                    this.convertFiatToCrypto()
                               })
                          }
-
                     }
-                    
                }
           },
 
@@ -141,27 +136,23 @@
 
           methods: {
                convert() {
-                    if (this.isAFiat(this.currencyOne)) {
-                         if(!this.isAFiat(this.currencyTwo)) {
+                    if (this.isAFiatCurrency(this.currencyOne)) {
+                         if(!this.isAFiatCurrency(this.currencyTwo)) {
                               this.convertSecondSelect()
                          } else {
                               this.convertedCurrency = ((this.originalCurrency * this.rate)).toLocaleString('da-DK')
                          }
                     } else if (this.cryptoToCrypto) {
-                         this.convertedCurrency = this.originalCurrency * (this.originalCryptoToBtc.price / this.secondCryptoToBtc.price)
+                         this.convertedCurrency = this.originalCurrency * (this.originalCryptoToBTC.price / this.secondCryptoToBTC.price)
                     } else {
                          const symbol = this.currencyOne + 'USDT'
                          if (this.cryptoPrices.find(element => element.symbol === symbol)) {
                               this.tetherRate = this.cryptoPrices.find(element => element.symbol === symbol)
 
-                              let dollar_rate = ''
-                              if (Object.keys(this.$store.state.dollar_to_currency_rate).length) {
-                                   dollar_rate = Object.values(this.$store.state.dollar_to_currency_rate)
-                              } else {
-                                   dollar_rate = this.$store.state.dollar_to_currency_rate
-                              }
+                              let dollarRate = ''
+                              this.isDollarRate(dollarRate)
 
-                              const cryptoRate = this.tetherRate.price * dollar_rate
+                              const cryptoRate = this.tetherRate.price * dollarRate
                               this.convertedCurrency = ((this.originalCurrency * cryptoRate)).toLocaleString('da-DK')
                          } else {
                               this.convertFiatToCrypto()
@@ -170,23 +161,19 @@
                },
 
                convertSecondSelect() {
-                    if (this.isAFiat(this.currencyTwo)) {
+                    if (this.isAFiatCurrency(this.currencyTwo)) {
                          this.convertedCurrency = ((this.originalCurrency * this.rate)).toLocaleString('da-DK')
                     } else if (this.cryptoToCrypto) {
-                         this.convertedCurrency = this.originalCurrency * (this.originalCryptoToBtc.price / this.secondCryptoToBtc.price)
+                         this.convertedCurrency = this.originalCurrency * (this.originalCryptoToBTC.price / this.secondCryptoToBTC.price)
                     } else {
                          const symbol = this.currencyTwo + 'USDT'
                          if (this.cryptoPrices.find(element => element.symbol === symbol)) {
                               this.tetherRate = this.cryptoPrices.find(element => element.symbol === symbol)
 
-                              let dollar_to_fiat_rate = ''
-                              if (Object.keys(this.$store.state.dollar_to_currency_rate).length) {
-                                   dollar_to_fiat_rate = Object.values(this.$store.state.dollar_to_currency_rate)
-                              } else {
-                                   dollar_to_fiat_rate = this.$store.state.dollar_to_currency_rate
-                              }
+                              let dollarFiatRate = ''
+                              this.isDollarRate(dollarFiatRate)
 
-                              this.convertedCurrency = this.originalCurrency * ((1/dollar_to_fiat_rate) / this.tetherRate.price) 
+                              this.convertedCurrency = this.originalCurrency * ((1/dollarFiatRate) / this.tetherRate.price) 
                          } else {
                               this.convertFiatToCrypto()
                          }
@@ -196,7 +183,7 @@
                // get fiat rate
                getRate() {
                     const rates = this.$store.state.rates
-                    if (this.isAFiat(this.currencyOne)) {
+                    if (this.isAFiatCurrency(this.currencyOne)) {
                          Object.entries(rates).map(([key,value]) => {
                               if (key == this.currencyTwo) {
                                    this.rate = value
@@ -212,40 +199,33 @@
                     
                     // get both cryptos -> base btc
                     if (this.currencyOne == 'BTC') {
-                         this.originalCryptoToBtc = {price:"1", symbol:"BTC"}
+                         this.originalCryptoToBTC = {price:"1", symbol:"BTC"}
+                    } else if (this.currencyTwo == 'BTC') {
+                         this.secondCryptoToBTC = {price:"1", symbol:"BTC"}
                     } else {
-                         this.originalCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_one);
-                    }
-                    
-                    if (this.currencyTwo == 'BTC') {
-                         this.secondCryptoToBtc = {price:"1", symbol:"BTC"}
-                    } else {
-                         this.secondCryptoToBtc = this.cryptoPrices.find(element => element.symbol === symbol_two);
+                         this.originalCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbol_one);
+                         this.secondCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbol_two);
                     }
 
-                    this.convertedCurrency = this.originalCryptoToBtc.price / this.secondCryptoToBtc.price
+                    this.convertedCurrency = this.originalCryptoToBTC.price / this.secondCryptoToBTC.price
                },
 
                convertFiatToCrypto() {
                     // get currency to dollar rate
-                    let dollar_to_fiat_rate = ''
-                    if (Object.keys(this.$store.state.dollar_to_currency_rate).length) {
-                         dollar_to_fiat_rate = Object.values(this.$store.state.dollar_to_currency_rate)
-                    } else {
-                         dollar_to_fiat_rate = this.$store.state.dollar_to_currency_rate
-                    }
+                    let dollarFiatRate = ''
+                    this.isDollarRate(dollarFiatRate)
 
                     // get fiat -> btc
                     const usdt_btc = this.cryptoPrices.find(element => element.symbol === 'BTCUSDT');
                     const usd_to_btc = 1/usdt_btc.price;
-                    const fiat_to_btc = usd_to_btc/dollar_to_fiat_rate
+                    const fiat_to_btc = usd_to_btc/dollarFiatRate
 
                     // get selected crypto coin -> btc
                     const crypto_to_btc = this.$store.state.rate_base_btc
 
                     // convert to currency
                     let exchange_to = ''
-                    if (this.isAFiat(this.currencyOne)) {
+                    if (this.isAFiatCurrency(this.currencyOne)) {
                          exchange_to = this.originalCurrency * (fiat_to_btc / crypto_to_btc)
                     } else {
                          exchange_to = this.originalCurrency * (crypto_to_btc / fiat_to_btc)
@@ -259,8 +239,18 @@
                },
 
                // check if selected is a Fiat
-               isAFiat(value) {
+               isAFiatCurrency(value) {
                     return this.currencies.includes(value)
+               },
+
+               // check if we have dollar rate in the store
+               // eslint-disable-next-line no-unused-vars
+               isDollarRate(val) {
+                    if (Object.keys(this.$store.state.dollarToCurrencyRate).length) {
+                         val = Object.values(this.$store.state.dollarToCurrencyRate)
+                    } else {
+                         val = this.$store.state.dollarToCurrencyRate
+                    }
                }
           },
      }
@@ -271,7 +261,7 @@
           background: #243333;
           align-items: center;
           padding: 25px;
-          margin: 10px;
+          margin: 3em 10px;
           color: #ffffff;
      }
 </style>

@@ -17,7 +17,7 @@ const store = new Vuex.Store({
           crypto: [],
           crypto_prices: [],
           rate_base_btc: null,
-          dollar_to_currency_rate: ''
+          dollarToCurrencyRate: ''
      },
 
      getters: {
@@ -90,7 +90,7 @@ const store = new Vuex.Store({
           },
 
           SET_DOLLAR_RATE(state,data) {
-               state.dollar_to_currency_rate = data
+               state.dollarToCurrencyRate = data
           }
      },
 
