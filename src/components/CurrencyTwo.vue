@@ -59,3 +59,10 @@ export default {
      }
 }
 </script>
+
+<style lang="css" scoped>
+     #converted {
+          font-weight: 900;
+          color: #243333;
+     }
+</style>

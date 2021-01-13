@@ -13,9 +13,12 @@
                               <b-icon icon="arrow-counterclockwise" :animation="animation" font-scale="3"></b-icon>
                          </b-col>
                     </div>
-                    <!-- <divider></divider> -->
 
                     <currency-two :converted-currency="this.convertedCurrency"></currency-two>
+
+                    <b-col cols="12" class="text-left mt-3">
+                         <small>Updated on: {{date | date}}</small>
+                    </b-col>
                </b-row>
           </b-container>
      </div>
@@ -68,6 +71,10 @@
                     } else {
                          return true
                     }
+               },
+
+               date() {
+                    return this.$store.state.date
                },
           },
 
@@ -194,8 +201,8 @@
 
                // convert crypto to crypto
                convertCryptoToCrypto() {
-                    const symbol_one = this.currencyOne + 'BTC'
-                    const symbol_two = this.currencyTwo + 'BTC'
+                    const symbolOne = this.currencyOne + 'BTC'
+                    const symbolTwo = this.currencyTwo + 'BTC'
                     
                     // get both cryptos -> base btc
                     if (this.currencyOne == 'BTC') {
@@ -203,8 +210,8 @@
                     } else if (this.currencyTwo == 'BTC') {
                          this.secondCryptoToBTC = {price:"1", symbol:"BTC"}
                     } else {
-                         this.originalCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbol_one);
-                         this.secondCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbol_two);
+                         this.originalCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbolOne);
+                         this.secondCryptoToBTC = this.cryptoPrices.find(element => element.symbol === symbolTwo);
                     }
 
                     this.convertedCurrency = this.originalCryptoToBTC.price / this.secondCryptoToBTC.price
@@ -216,21 +223,21 @@
                     this.isDollarRate(dollarFiatRate)
 
                     // get fiat -> btc
-                    const usdt_btc = this.cryptoPrices.find(element => element.symbol === 'BTCUSDT');
-                    const usd_to_btc = 1/usdt_btc.price;
-                    const fiat_to_btc = usd_to_btc/dollarFiatRate
+                    const USDTBTC = this.cryptoPrices.find(element => element.symbol === 'BTCUSDT');
+                    const usdToBTC = 1/USDTBTC.price;
+                    const fiatToBTC = usdToBTC/dollarFiatRate
 
                     // get selected crypto coin -> btc
-                    const crypto_to_btc = this.$store.state.rate_base_btc
+                    const cryptoToBTC = this.$store.state.rateBaseBitcoin
 
                     // convert to currency
-                    let exchange_to = ''
+                    let convertedToFiat = ''
                     if (this.isAFiatCurrency(this.currencyOne)) {
-                         exchange_to = this.originalCurrency * (fiat_to_btc / crypto_to_btc)
+                         convertedToFiat = this.originalCurrency * (fiatToBTC / cryptoToBTC)
                     } else {
-                         exchange_to = this.originalCurrency * (crypto_to_btc / fiat_to_btc)
+                         convertedToFiat = this.originalCurrency * (cryptoToBTC / fiatToBTC)
                     }
-                    this.convertedCurrency = exchange_to
+                    this.convertedCurrency = convertedToFiat
                },
 
                // change the base currency
@@ -253,15 +260,23 @@
                     }
                }
           },
+
+          filters: {
+               date(date) {
+                    let formatDate = new Date(date);
+                    return formatDate.toDateString()
+               }
+          }
      }
 </script>
 
 <style scoped>
      #converter {
-          background: #243333;
+          background: #2ea2b8;
           align-items: center;
           padding: 25px;
           margin: 3em 10px;
           color: #ffffff;
+          border-radius: 5px;
      }
 </style>

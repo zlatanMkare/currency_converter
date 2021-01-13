@@ -15,9 +15,10 @@ const store = new Vuex.Store({
           base: 'USD',
           date: '',
           crypto: [],
-          crypto_prices: [],
-          rate_base_btc: null,
-          dollarToCurrencyRate: ''
+          cryptoPrices: [],
+          rateBaseBitcoin: null,
+          dollarToCurrencyRate: '',
+          news: {}
      },
 
      getters: {
@@ -50,7 +51,7 @@ const store = new Vuex.Store({
           },
 
           cryptoPrices(state) {
-               return state.crypto_prices
+               return state.cryptoPrices
           }
 
      },
@@ -81,16 +82,20 @@ const store = new Vuex.Store({
                state.crypto = data
           },
 
-          SET_CRYPTO_PRICES(state,data) {
-               state.crypto_prices = data
+          SET_CRYPTOPRICES(state,data) {
+               state.cryptoPrices = data
           },
 
-          SET_RATE_BASE_BTC(state,data) {
-               state.rate_base_btc = data
+          SET_RATE_BASE_BITCOIN(state,data) {
+               state.rateBaseBitcoin = data
           },
 
           SET_DOLLAR_RATE(state,data) {
                state.dollarToCurrencyRate = data
+          },
+
+          SET_NEWS(state,data) {
+               state.news = data
           }
      },
 
@@ -141,7 +146,7 @@ const store = new Vuex.Store({
                     const symbols = payload + 'BTC';
                     axios.get(config.cryptoRatesApi + '?symbol=' + symbols).then(response => {
                          const rate = response.data.price
-                         commit('SET_RATE_BASE_BTC',rate)
+                         commit('SET_RATE_BASE_BITCOIN',rate)
                          resolve()
                     }).catch(e => {
                          console.log(e)
@@ -163,12 +168,21 @@ const store = new Vuex.Store({
                return new Promise((resolve,reject) => {
                     axios.get(config.cryptoRatesApi).then(response => {
                          const data = response.data
-                         commit('SET_CRYPTO_PRICES', data)
+                         commit('SET_CRYPTOPRICES', data)
                          resolve()
                     }).catch(e => {
                          console.log(e)
                          reject()
                     })
+               })
+          },
+
+          fetchNews({commit}) {
+               axios.get('https://newsapi.org/v2/everything?q=crypto&sortBy=relevancy&apiKey=e012002d747447ce8df8db315cd1c6c4').then(response => {    
+                    const data = response.data.articles
+                    commit('SET_NEWS', data)
+               }).catch(e => {
+                    console.log(e)
                })
           }
      },

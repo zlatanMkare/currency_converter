@@ -26,8 +26,7 @@ export default {
           -moz-osx-font-smoothing: grayscale;
           text-align: center;
           color: #2c3e50;
-          height: 100vh;
-          background: #eeeeee;
+          background: #ffffff;
      }
      .page-transition-enter-active {
           animation: enter 1s;
