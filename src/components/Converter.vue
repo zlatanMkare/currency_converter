@@ -1,7 +1,7 @@
 <template>
      <div>
           <b-container>
-               <div class="text-center" v-if="currencies.length < 1">
+               <div class="text-center mt-5" v-if="currencies.length < 1">
                     <b-spinner variant="primary"></b-spinner>
                </div>
 
