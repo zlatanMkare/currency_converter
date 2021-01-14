@@ -14,7 +14,7 @@
                <b-row v-else>
                     <b-col md="12" class="article row text-left my-5" v-for="article in news" :key="article.url">
                          <b-col md="4">
-                              <b-img :src="article.urlToImage" fluid alt="Responsive image"></b-img>
+                              <b-img :src="article.image" fluid alt="Responsive image"></b-img>
                          </b-col>
                          <b-col md="8">
                               <h4 class="mb-1" v-html="article.title"></h4>

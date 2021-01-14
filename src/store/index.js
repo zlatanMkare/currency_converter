@@ -178,7 +178,7 @@ const store = new Vuex.Store({
           },
 
           fetchNews({commit}) {
-               axios.get('https://newsapi.org/v2/everything?q=crypto&sortBy=relevancy&apiKey=e012002d747447ce8df8db315cd1c6c4').then(response => {    
+               axios.get('https://gnews.io/api/v4/search?q=crypto&token=' + process.env.VUE_APP_NEWS_API_TOKEN + '&lang=en&countries=us').then(response => {    
                     const data = response.data.articles
                     commit('SET_NEWS', data)
                }).catch(e => {
