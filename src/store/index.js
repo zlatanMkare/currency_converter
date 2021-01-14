@@ -18,7 +18,7 @@ const store = new Vuex.Store({
           cryptoPrices: [],
           rateBaseBitcoin: null,
           dollarToCurrencyRate: '',
-          news: {}
+          news: []
      },
 
      getters: {

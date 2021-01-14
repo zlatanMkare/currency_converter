@@ -25,7 +25,7 @@ export default {
      },
 
      props: {
-          convertedCurrency: String
+          convertedCurrency: [ String, Number ]
      },
 
      data () {

@@ -156,8 +156,7 @@
                          if (this.cryptoPrices.find(element => element.symbol === symbol)) {
                               this.tetherRate = this.cryptoPrices.find(element => element.symbol === symbol)
 
-                              let dollarRate = ''
-                              this.isDollarRate(dollarRate)
+                              let dollarRate = this.isDollarRate(dollarRate)
 
                               const cryptoRate = this.tetherRate.price * dollarRate
                               this.convertedCurrency = ((this.originalCurrency * cryptoRate)).toLocaleString('da-DK')
@@ -177,8 +176,7 @@
                          if (this.cryptoPrices.find(element => element.symbol === symbol)) {
                               this.tetherRate = this.cryptoPrices.find(element => element.symbol === symbol)
 
-                              let dollarFiatRate = ''
-                              this.isDollarRate(dollarFiatRate)
+                              let dollarFiatRate = this.isDollarRate(dollarFiatRate)
 
                               this.convertedCurrency = this.originalCurrency * ((1/dollarFiatRate) / this.tetherRate.price) 
                          } else {
@@ -219,8 +217,7 @@
 
                convertFiatToCrypto() {
                     // get currency to dollar rate
-                    let dollarFiatRate = ''
-                    this.isDollarRate(dollarFiatRate)
+                    let dollarFiatRate = this.isDollarRate(dollarFiatRate)
 
                     // get fiat -> btc
                     const USDTBTC = this.cryptoPrices.find(element => element.symbol === 'BTCUSDT');
@@ -231,13 +228,13 @@
                     const cryptoToBTC = this.$store.state.rateBaseBitcoin
 
                     // convert to currency
-                    let convertedToFiat = ''
+                    let convertToFiat = ''
                     if (this.isAFiatCurrency(this.currencyOne)) {
-                         convertedToFiat = this.originalCurrency * (fiatToBTC / cryptoToBTC)
+                         convertToFiat = this.originalCurrency * (fiatToBTC / cryptoToBTC)
                     } else {
-                         convertedToFiat = this.originalCurrency * (cryptoToBTC / fiatToBTC)
+                         convertToFiat = this.originalCurrency * (cryptoToBTC / fiatToBTC)
                     }
-                    this.convertedCurrency = convertedToFiat
+                    this.convertedCurrency = convertToFiat
                },
 
                // change the base currency
@@ -258,6 +255,7 @@
                     } else {
                          val = this.$store.state.dollarToCurrencyRate
                     }
+                    return val
                }
           },
 
