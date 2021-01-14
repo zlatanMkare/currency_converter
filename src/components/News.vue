@@ -7,8 +7,8 @@
                     </b-col>
                </b-row>
 
-               <div class="text-center" v-if="news.length < 1">
-                    <b-spinner variant="primary"></b-spinner>
+               <div class="text-left" v-if="news.length < 1">
+                    <p>Fetching latest news articles</p>
                </div>
 
                <b-row v-else>
