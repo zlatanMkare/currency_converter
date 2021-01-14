@@ -4,6 +4,7 @@
 }
 .v-select {
      background: #ffffff;
+     padding: 3px 0;
 }
 .v-select .vs__dropdown-toggle {
      border: none;
