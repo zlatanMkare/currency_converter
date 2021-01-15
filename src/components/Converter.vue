@@ -8,7 +8,7 @@
                <b-row id="converter" v-else>
                     <currency-one></currency-one>
                     
-                    <div class="row col-md-2">
+                    <div class="row col-md-3">
                          <b-col>
                               <b-icon icon="arrow-counterclockwise" :animation="animation" font-scale="3"></b-icon>
                          </b-col>
