@@ -1,6 +1,6 @@
 <template>
-     <div class="row col-md-5">
-          <b-col md="6" class="text-left">
+     <div class="row col-md-6">
+          <b-col md="4" class="text-left">
                <b-form-group label="Convert" label-for="convert">
                     <b-form-input 
                          v-model="originalCurrency" 
@@ -9,9 +9,9 @@
                     </b-form-input>
                </b-form-group>
           </b-col>
-          <b-col md="6" class="text-left">
+          <b-col md="8" class="text-left">
                <b-form-group label="Currency">
-                    <v-select id="firstSelect" v-model="currencyOne" :options="allCurrencies"></v-select>
+                    <v-select id="firstSelect" label="name" v-model="currencyOne" :reduce="name => name.code" :options="allCurrencies"></v-select>
                </b-form-group>
           </b-col>
      </div>
@@ -66,3 +66,9 @@ export default {
      }
 }
 </script>
+
+<style scoped>
+::v-deep .vs__clear {
+    display: none;
+}
+</style>

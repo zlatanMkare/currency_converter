@@ -2,7 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import config from './config'
-import createCache from 'vuex-cache';
+import createCache from 'vuex-cache'
+import commonCurrencies from './common-currencies.json'
+import cryptoCurrencies from './cypto-currencies.json'
 
 Vue.use(Vuex)
 
@@ -26,10 +28,13 @@ const store = new Vuex.Store({
                return Object.keys(state.rates)
           },
 
+          
+
           cryptoSymbols(state) {
                const arr = state.crypto.symbols
                const newArr = []
                
+               // get crypto symbols
                if (Object.keys(state.crypto).length) {
                     for (var i=0; i < arr.length; i++) {
                          if(arr[i].baseAsset){
@@ -43,8 +48,35 @@ const store = new Vuex.Store({
                return uniqueValues
           },
 
+          // includes crupto and fiat
           allCurrencies(state,getters) {
-               const currencies = getters.currencies.concat(getters.cryptoSymbols)
+               const currencySymbols = []; 
+               Object.entries(commonCurrencies).forEach((currency) => {
+                    getters.currencies.forEach((rate) => {
+                         if (rate === currency[1].code) {
+                              currencySymbols.push({
+                                   code: currency[1].code,
+                                   name: currency[1].name,
+                                   symbol: currency[1].symbol
+                              })
+                         }
+                    })
+               })
+
+               const cryptos = []; 
+               Object.entries(cryptoCurrencies).forEach((crypto) => {
+                    getters.cryptoSymbols.forEach((cryptoSymbol) => {
+                         if (cryptoSymbol === crypto[0]) {
+                              cryptos.push({
+                                   code: cryptoSymbol,
+                                   name: crypto[1],
+                                   symbol: null
+                              })
+                         }
+                    })
+               })
+
+               const currencies = currencySymbols.concat(cryptos)
                const currenciesSet = new Set(currencies)
                const allCurrencies = [...currenciesSet]
                return allCurrencies

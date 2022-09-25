@@ -1,14 +1,14 @@
 <template>
-     <div class="row col-md-5">
-          <b-col md="6" class="text-left">
+     <div class="row col-md-6">
+          <b-col md="4" class="text-left">
                <b-form-group label="You get" label-for="converted">
                     <b-form-input :value="convertedCurrency" id="converted" type="text" disabled></b-form-input>
                </b-form-group>
           </b-col>
 
-          <b-col md="6" class="text-left">
+          <b-col md="8" class="text-left">
                <b-form-group label="Currency">
-                    <v-select id="secondSelect" v-model="currencyTwo" :options="allCurrencies"></v-select>
+                    <v-select id="secondSelect" label="name" :reduce="name => name.code" v-model="currencyTwo" :options="allCurrencies"></v-select>
                </b-form-group>
           </b-col>
      </div>
@@ -64,5 +64,9 @@ export default {
      #converted {
           font-weight: 900;
           color: #243333;
+     }
+
+     ::v-deep .vs__clear {
+          display: none;
      }
 </style>

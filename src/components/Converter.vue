@@ -5,12 +5,18 @@
                     <b-spinner variant="primary"></b-spinner>
                </div>
 
-               <b-row id="converter" v-else>
+               <div class="text-center mt-5">
+                    <h2>Convert any fiat or crypto currency</h2>
+                    <p>We have over 150+ fiat currencies and 100+ crypto currencies that you can convert. Data is updated on a daily basis</p>
+               </div>
+
+               <b-row id="converter" v-if="currencies.length > 1">
+                    
                     <currency-one></currency-one>
                     
-                    <div class="row col-md-3">
+                    <div class="row col-md-1">
                          <b-col>
-                              <b-icon icon="arrow-counterclockwise" :animation="animation" font-scale="3"></b-icon>
+                              <b-icon icon="arrow-left-right" :animation="animation" font-scale="1"></b-icon>
                          </b-col>
                     </div>
 
